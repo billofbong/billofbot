@@ -1,0 +1,7 @@
+{
+  "#help": "Display this menu",
+  "#yt": "Give a link or a video title and I will either play it or search for it",
+  "#ytc": "Choose a video from the list given from searching with #yt",
+  "#leave, #stop": "Stops playing the video and leaves the channel",
+  "#uptime": "Displays the number of seconds the bot has been online for"
+}
