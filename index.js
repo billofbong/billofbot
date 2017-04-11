@@ -3,7 +3,7 @@ const Discord = require('discord.js');
 const ytdl = require('ytdl-core');
 const fs = require('fs');
 const request = require('superagent');
-const cmds = require('./commands');
+const commands = require('./commands.json');
 
 const apiKey = 'AIzaSyCJKftyiAbPRJ98WZA155PR2YvrqQ1s25I';
 
@@ -11,7 +11,6 @@ const bot = new Discord.Client();
 
 const token = 'MzAwNTA1Mjg3MDQxNzQ0OTIz.C8tepA.9eu6fSytgKh8NqbtWGu1JqtiZRs';
 const streamOptions = {seek: 0, volume: 1};
-
 
 var videoIDs = [];
 var videoLengths = [];
@@ -53,14 +52,14 @@ bot.on('message', message => {
                 message.member.voiceChannel.join().then(connection => {
                     const stream = ytdl(args, {filter: 'audioonly'});
                     const dispatcher = connection.playStream(stream, streamOptions);
+                    nowPlaying(message, id);
                     dispatcher.on('end', () => {
                         connection.disconnect();
                     });
                 }).catch(console.error);
             }
             else
-                message.channel.send("You are not in a voice channel!")
-
+                message.channel.send("You are not in a voice channel!");
         }
 
         else
@@ -75,19 +74,28 @@ bot.on('message', message => {
                 {
                     let messageNum = parseInt(i) + 1;
                     //message.channel.send('#' + messageNum + ' ' + response.body.items[i].snippet.title);
+                    videoIDs.push(response.body.items[i].id.videoId);
+                    request(`https://www.googleapis.com/youtube/v3/videos?id=${videoIDs[i]}&part=contentDetails&key=${apiKey}`, (error, response) => {
+                        try
+                        {
+                            videoLengths.push(response.body.items[0].contentDetails.duration);
+                        }
+                        catch(error)
+                        {
+                            console.log(error);
+                            videoLengths.push("PT00M00S");
+                        }
+                    });
                     if(i === 0)
                     {
-                        toSend += '`' + messageNum + '` ' + response.body.items[i].snippet.title;
+                        toSend += '`' + messageNum + '` **' + response.body.items[i].snippet.title + "** — **" + response.body.items[i].snippet.channelTitle + "**";
                     }
                     else
                     {
-                        toSend += '\n`' + messageNum + '` ' + response.body.items[i].snippet.title;
+                        toSend += '\n`' + messageNum + '` **' + response.body.items[i].snippet.title + "** — **" + response.body.items[i].snippet.channelTitle + "**";
                     }
-                    videoIDs.push(response.body.items[i].id.videoId);
                 }
-                request(`https://www.googleapis.com/youtube/v3/videos?id=${videoIDs[i]}&part=contentDetails&key=${apiKey}`, (error, response) => {
-                    //console.log(response);
-                });
+                console.log(videoLengths[2]);
                 message.channel.send(toSend + '\nUse `#ytc` to choose a video.');
             });
         }
@@ -107,6 +115,7 @@ bot.on('message', message => {
                 message.member.voiceChannel.join().then(connection => {
                     const stream = ytdl('http://youtube.com/watch?v=' + id, {filter: 'audioonly'});
                     const dispatcher = connection.playStream(stream, streamOptions);
+                    nowPlaying(message, id);
                     dispatcher.on('end', () => {
                         connection.disconnect();
                     });
@@ -131,9 +140,8 @@ bot.on('message', message => {
     {
         message.channel.send('Uptime: ' + bot.uptime / 1000 + ' seconds.');
     }
-    if(message.content.toUpperCase() === '#HELP')
-    {
-        message.channel.send();
-    }
 });
+function nowPlaying(message, id) {
+    message.channel.send("Now playing: " + 'http://youtube.com/watch?v=' + id);
+}
 bot.login(token);
