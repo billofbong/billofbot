@@ -5,7 +5,7 @@ const fs = require('fs');
 const request = require('superagent');
 const commands = require('./commands.json');
 
-const apiKey = 'AIzaSyCJKftyiAbPRJ98WZA155PR2YvrqQ1s25I';
+const apiKey = 'AIzaSyCblHeaMqXONLZDiaIUFI7Q5Nezd1s5RQU';
 
 const bot = new Discord.Client();
 
@@ -88,11 +88,11 @@ bot.on('message', message => {
                     });
                     if(i === 0)
                     {
-                        toSend += '`' + messageNum + '` **' + response.body.items[i].snippet.title + "** — **" + response.body.items[i].snippet.channelTitle + "**";
+                        toSend += '`' + messageNum + '` ' + response.body.items[i].snippet.title + " — " + response.body.items[i].snippet.channelTitle + " — `" + videoLengths[i] + "`";
                     }
                     else
                     {
-                        toSend += '\n`' + messageNum + '` **' + response.body.items[i].snippet.title + "** — **" + response.body.items[i].snippet.channelTitle + "**";
+                        toSend += '\n`' + messageNum + '` ' + response.body.items[i].snippet.title + " — " + response.body.items[i].snippet.channelTitle + " — `"  + videoLengths[i] + "`";
                     }
                 }
                 console.log(videoLengths[2]);
